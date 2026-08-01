@@ -1,1 +1,15 @@
-{<br/>  &quot;name&quot;: &quot;quikr-vault-backend&quot;,<br/>  &quot;version&quot;: &quot;1.0.0&quot;,<br/>  &quot;main&quot;: &quot;server.js&quot;,<br/>  &quot;scripts&quot;: {<br/>    &quot;start&quot;: &quot;node server.js&quot;<br/>  },<br/>  &quot;dependencies&quot;: {<br/>    &quot;axios&quot;: &quot;^1.6.0&quot;,<br/>    &quot;cors&quot;: &quot;^2.8.5&quot;,<br/>    &quot;express&quot;: &quot;^4.19.2&quot;,<br/>    &quot;form-data&quot;: &quot;^4.0.0&quot;,<br/>    &quot;multer&quot;: &quot;^1.4.5-lts.1&quot;<br/>  }<br/>}<br/>
+{
+  "name": "quikr-vault-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "form-data": "^4.0.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
