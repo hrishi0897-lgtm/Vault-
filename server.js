@@ -18,7 +18,6 @@ if (!fs.existsSync(uploadDir)) {
 
 const upload = multer({ dest: uploadDir });
 
-// Handle individual chunk uploads
 app.post('/api/upload', upload.single('file'), async (req, res) => {
     try {
         const { botToken, chatId } = req.body;
@@ -35,7 +34,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             headers: formData.getHeaders(),
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
-            timeout: 120000 // 2-minute timeout per chunk
+            timeout: 120000
         });
 
         fs.unlinkSync(file.path);
@@ -51,20 +50,42 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-// Reassemble and download chunks back into a single file
+// Memory-efficient streaming download reassembler
 app.post('/api/download', async (req, res) => {
     try {
         const { botToken, telegramMessages, fileName } = req.body;
-        let buffers = [];
+        if (!botToken || !telegramMessages || !telegramMessages.length) {
+            return res.status(400).json({ error: 'Missing download parameters' });
+        }
+
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.setHeader('Content-Type', 'application/octet-stream');
+
         for (const item of telegramMessages) {
             const meta = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);
-            const chunkRes = await axios.get(`https://api.telegram.org/file/bot${botToken}/${meta.data.result.file_path}`, { responseType: 'arraybuffer' });
-            buffers.push(Buffer.from(chunkRes.data));
+            const filePath = meta.data.result.file_path;
+            
+            const chunkStream = await axios({
+                method: 'get',
+                url: `https://api.telegram.org/file/bot${botToken}/${filePath}`,
+                responseType: 'stream'
+            });
+
+            // Pipe each chunk directly to the response stream to prevent RAM exhaustion
+            await new Promise((resolve, reject) => {
+                chunkStream.data.pipe(res, { end: false });
+                chunkStream.data.on('end', resolve);
+                chunkStream.data.on('error', reject);
+            });
         }
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-        res.send(Buffer.concat(buffers));
+        res.end();
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err);
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.end();
+        }
     }
 });
 
