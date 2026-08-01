@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -206,7 +207,7 @@
             
             <div id="progressContainer" class="hidden space-y-2 pt-2">
                 <div class="flex justify-between text-xs text-slate-400">
-                    <span id="progressStatusText">Waking up server & chunking file...</span>
+                    <span id="progressStatusText">Preparing upload...</span>
                     <span id="progressPercentText">0%</span>
                 </div>
                 <div class="w-full bg-cardBorder rounded-full h-2 overflow-hidden">
@@ -503,7 +504,7 @@
         document.getElementById('searchInput').addEventListener('input', renderFiles);
         document.getElementById('sortSelect').addEventListener('change', renderFiles);
 
-        // Robust Upload Handler with Server Wakeup & Live Progress
+        // Client-Side Chunking Upload Handler (Prevents Server Timeout on Large Videos)
         document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if(fileInput.files.length === 0) return alert('Please select a file first.');
@@ -525,71 +526,72 @@
             progressContainer.classList.remove('hidden');
             progressBar.style.width = '5%';
             progressPercentText.textContent = '5%';
-            progressStatusText.textContent = 'Waking up server from sleep...';
+            progressStatusText.textContent = 'Waking up server...';
 
             // Wake up render server first
             try {
                 await fetch(`${backendUrl}/api/upload`, { method: 'HEAD' }).catch(() => {});
             } catch(err) {}
 
-            progressStatusText.textContent = 'Chunking & uploading file to Telegram...';
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('botToken', token);
-            formData.append('chatId', chatId);
+            const CHUNK_SIZE = 15 * 1024 * 1024; // 15MB safe chunks
+            const totalParts = Math.ceil(file.size / CHUNK_SIZE);
+            let telegramMessages = [];
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', `${backendUrl}/api/upload`, true);
+            for (let i = 0; i < totalParts; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
 
-            xhr.upload.onprogress = function(e) {
-                if(e.lengthComputable) {
-                    const p = Math.round((e.loaded / e.total) * 90) + 5;
-                    progressBar.style.width = p + '%';
-                    progressPercentText.textContent = p + '%';
-                    if(p >= 90) {
-                        progressStatusText.textContent = 'Finalizing parts on Telegram...';
+                const percent = Math.round(((i) / totalParts) * 90) + 5;
+                progressBar.style.width = percent + '%';
+                progressPercentText.textContent = percent + '%';
+                progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts} to Telegram...`;
+
+                const formData = new FormData();
+                formData.append('file', chunk, `${file.name}.part${i + 1}`);
+                formData.append('botToken', token);
+                formData.append('chatId', chatId);
+
+                try {
+                    const response = await fetch(`${backendUrl}/api/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if(data.success && data.telegramMessages) {
+                        telegramMessages.push(...data.telegramMessages);
+                    } else {
+                        throw new Error(data.error || 'Upload failed');
                     }
-                }
-            };
-
-            xhr.onload = function() {
-                if(xhr.status === 200) {
-                    try {
-                        const data = JSON.parse(xhr.responseText);
-                        if(data.success) {
-                            progressBar.style.width = '100%';
-                            progressPercentText.textContent = '100%';
-                            progressStatusText.textContent = 'Upload complete!';
-                            data.type = cat;
-                            data.folderId = vaultState.currentFolderId;
-                            data.date = new Date().toISOString();
-                            vaultState.files.unshift(data);
-                            localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
-                            setTimeout(() => {
-                                document.getElementById('uploadModal').classList.add('hidden');
-                                loadVaultData();
-                                alert('File successfully chunked & uploaded to Telegram Vault!');
-                            }, 500);
-                        } else {
-                            alert('Upload failed: ' + (data.error || 'Server error'));
-                            progressContainer.classList.add('hidden');
-                        }
-                    } catch(err) {
-                        alert('Invalid server response.');
-                        progressContainer.classList.add('hidden');
-                    }
-                } else {
-                    alert('Upload failed with server status: ' + xhr.status);
+                } catch(err) {
+                    alert('Upload error on part ' + (i+1) + ': ' + err.message);
                     progressContainer.classList.add('hidden');
+                    return;
                 }
+            }
+
+            progressBar.style.width = '100%';
+            progressPercentText.textContent = '100%';
+            progressStatusText.textContent = 'Upload complete!';
+
+            const newVaultFile = {
+                fileName: file.name,
+                size: file.size,
+                parts: totalParts,
+                telegramMessages,
+                type: cat,
+                folderId: vaultState.currentFolderId,
+                date: new Date().toISOString()
             };
 
-            xhr.onerror = function() {
-                alert('Connection error. Check your internet or backend server.');
-                progressContainer.classList.add('hidden');
-            };
+            vaultState.files.unshift(newVaultFile);
+            localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
 
-            xhr.send(formData);
+            setTimeout(() => {
+                document.getElementById('uploadModal').classList.add('hidden');
+                loadVaultData();
+                alert('File successfully chunked & uploaded to Telegram Vault!');
+            }, 400);
         });
 
         function openDownloadModal(fileName) {
@@ -634,3 +636,5 @@
     </script>
 </body>
 </html>
+
+```
