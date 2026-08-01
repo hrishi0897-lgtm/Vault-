@@ -18,6 +18,7 @@ if (!fs.existsSync(uploadDir)) {
 
 const upload = multer({ dest: uploadDir });
 
+// Handle individual chunk uploads
 app.post('/api/upload', upload.single('file'), async (req, res) => {
     try {
         const { botToken, chatId } = req.body;
@@ -34,7 +35,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             headers: formData.getHeaders(),
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
-            timeout: 60000 // 60s timeout per part
+            timeout: 120000 // 2-minute timeout per chunk
         });
 
         fs.unlinkSync(file.path);
@@ -50,6 +51,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 });
 
+// Reassemble and download chunks back into a single file
 app.post('/api/download', async (req, res) => {
     try {
         const { botToken, telegramMessages, fileName } = req.body;
