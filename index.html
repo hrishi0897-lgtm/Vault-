@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -207,7 +206,7 @@
             
             <div id="progressContainer" class="hidden space-y-2 pt-2">
                 <div class="flex justify-between text-xs text-slate-400">
-                    <span id="progressStatusText">Chunking & Uploading to Telegram...</span>
+                    <span id="progressStatusText">Waking up server & chunking file...</span>
                     <span id="progressPercentText">0%</span>
                 </div>
                 <div class="w-full bg-cardBorder rounded-full h-2 overflow-hidden">
@@ -284,7 +283,6 @@
         };
         let activeFileForChunks = null;
 
-        // Helpers
         function formatBytes(bytes) {
             if (bytes === 0) return '0 B';
             const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
@@ -292,7 +290,6 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Render Dashboard Overview & Data
         function loadVaultData() {
             renderStorageOverview();
             renderFolders();
@@ -316,7 +313,7 @@
             document.getElementById('sizeOther').textContent = formatBytes(others);
 
             const circumference = 264;
-            const progress = Math.min(totalBytes / (1024 * 1024 * 1024 * 10), 1); // 10GB gauge scale
+            const progress = Math.min(totalBytes / (1024 * 1024 * 1024 * 10), 1);
             document.getElementById('storageProgressCircle').style.strokeDashoffset = circumference - (progress * circumference);
         }
 
@@ -377,7 +374,7 @@
                 return;
             }
 
-            container.innerHTML = filtered.map((file, idx) => {
+            container.innerHTML = filtered.map((file) => {
                 const ext = file.fileName.split('.').pop().toUpperCase();
                 let badgeClass = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
                 let icon = 'fa-solid fa-file';
@@ -445,7 +442,6 @@
             loadVaultData();
         }
 
-        // Event Listeners for UI interaction
         document.getElementById('settingsModalBtn').addEventListener('click', () => {
             document.getElementById('botTokenInput').value = localStorage.getItem('botToken') || '';
             document.getElementById('chatIdInput').value = localStorage.getItem('chatId') || '';
@@ -507,8 +503,8 @@
         document.getElementById('searchInput').addEventListener('input', renderFiles);
         document.getElementById('sortSelect').addEventListener('change', renderFiles);
 
-        // Upload handler with progress bar
-        document.getElementById('startUploadBtn').addEventListener('click', () => {
+        // Robust Upload Handler with Server Wakeup & Live Progress
+        document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if(fileInput.files.length === 0) return alert('Please select a file first.');
             const token = localStorage.getItem('botToken');
@@ -521,52 +517,78 @@
             else if (file.type.startsWith('video/')) cat = 'videos';
             else if (file.type.includes('pdf') || file.type.includes('document')) cat = 'docs';
 
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercentText = document.getElementById('progressPercentText');
+            const progressStatusText = document.getElementById('progressStatusText');
+            
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '5%';
+            progressPercentText.textContent = '5%';
+            progressStatusText.textContent = 'Waking up server from sleep...';
+
+            // Wake up render server first
+            try {
+                await fetch(`${backendUrl}/api/upload`, { method: 'HEAD' }).catch(() => {});
+            } catch(err) {}
+
+            progressStatusText.textContent = 'Chunking & uploading file to Telegram...';
             const formData = new FormData();
             formData.append('file', file);
             formData.append('botToken', token);
             formData.append('chatId', chatId);
-
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-            const progressPercentText = document.getElementById('progressPercentText');
-            progressContainer.classList.remove('hidden');
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', `${backendUrl}/api/upload`, true);
 
             xhr.upload.onprogress = function(e) {
                 if(e.lengthComputable) {
-                    const p = Math.round((e.loaded / e.total) * 85) + 15;
+                    const p = Math.round((e.loaded / e.total) * 90) + 5;
                     progressBar.style.width = p + '%';
                     progressPercentText.textContent = p + '%';
+                    if(p >= 90) {
+                        progressStatusText.textContent = 'Finalizing parts on Telegram...';
+                    }
                 }
             };
 
             xhr.onload = function() {
                 if(xhr.status === 200) {
-                    const data = JSON.parse(xhr.responseText);
-                    if(data.success) {
-                        progressBar.style.width = '100%';
-                        progressPercentText.textContent = '100%';
-                        data.type = cat;
-                        data.folderId = vaultState.currentFolderId;
-                        data.date = new Date().toISOString();
-                        vaultState.files.unshift(data);
-                        localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
-                        setTimeout(() => {
-                            document.getElementById('uploadModal').classList.add('hidden');
-                            loadVaultData();
-                            alert('File successfully chunked & uploaded to Telegram Vault!');
-                        }, 400);
-                    } else {
-                        alert('Upload failed: ' + data.error);
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if(data.success) {
+                            progressBar.style.width = '100%';
+                            progressPercentText.textContent = '100%';
+                            progressStatusText.textContent = 'Upload complete!';
+                            data.type = cat;
+                            data.folderId = vaultState.currentFolderId;
+                            data.date = new Date().toISOString();
+                            vaultState.files.unshift(data);
+                            localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
+                            setTimeout(() => {
+                                document.getElementById('uploadModal').classList.add('hidden');
+                                loadVaultData();
+                                alert('File successfully chunked & uploaded to Telegram Vault!');
+                            }, 500);
+                        } else {
+                            alert('Upload failed: ' + (data.error || 'Server error'));
+                            progressContainer.classList.add('hidden');
+                        }
+                    } catch(err) {
+                        alert('Invalid server response.');
                         progressContainer.classList.add('hidden');
                     }
                 } else {
-                    alert('Server error occurred during upload.');
+                    alert('Upload failed with server status: ' + xhr.status);
                     progressContainer.classList.add('hidden');
                 }
             };
+
+            xhr.onerror = function() {
+                alert('Connection error. Check your internet or backend server.');
+                progressContainer.classList.add('hidden');
+            };
+
             xhr.send(formData);
         });
 
@@ -612,5 +634,3 @@
     </script>
 </body>
 </html>
-
-
