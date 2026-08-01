@@ -122,7 +122,7 @@
     <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-cardBorder">
             <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> Upload Large File (3GB+ Support)</h3>
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-bolt text-cyan-400"></i> Turbo High-Speed Upload</h3>
                 <button id="closeUploadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             
@@ -130,7 +130,7 @@
             
             <div id="progressContainer" class="hidden space-y-2 pt-2">
                 <div class="flex justify-between text-[11px] text-slate-400">
-                    <span id="progressStatusText" class="truncate max-w-[200px]">Splitting & uploading...</span>
+                    <span id="progressStatusText" class="truncate max-w-[200px]">Turbo uploading...</span>
                     <div class="space-x-2">
                         <span id="uploadSpeedText" class="text-cyan-400 font-semibold">0.00 MB/s</span>
                         <span id="progressPercentText" class="font-bold text-slate-200">0%</span>
@@ -142,7 +142,7 @@
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Unlimited Upload</button>
+                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Turbo Upload</button>
             </div>
         </div>
     </div>
@@ -182,7 +182,7 @@
     </div>
 
     <script>
-        const backendUrl = "https://vault-production-8b9e.up.railway.app"; // REPLACE WITH YOUR RAILWAY URL
+        const backendUrl = "https://vault-production-8b9e.up.railway.app";
         let vaultFiles = JSON.parse(localStorage.getItem('quikr_files')) || [];
         let activeFileForChunks = null;
 
@@ -281,7 +281,7 @@
         });
         document.getElementById('closeUploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
 
-        // High-Speed Unlimited Chunking Upload (Safely handles 3GB+ files in 20MB pieces)
+        // Turbo Parallel Chunk Upload (Uploads 3 chunks simultaneously for maximum speed)
         document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if(fileInput.files.length === 0) return showToast('Please select a file first.', 'info');
@@ -303,99 +303,6 @@
             
             progressContainer.classList.remove('hidden');
 
-            const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks (optimized for large 3GB+ files)
+            const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB
             const totalParts = Math.ceil(file.size / CHUNK_SIZE);
-            let telegramMessages = [];
-
-            for (let i = 0; i < totalParts; i++) {
-                const start = i * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, file.size);
-                const chunk = file.slice(start, end);
-
-                progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts} (${Math.round((start/file.size)*100)}%)...`;
-
-                const formData = new FormData();
-                formData.append('file', chunk, `${file.name}.part${i + 1}_of_${totalParts}`);
-                formData.append('botToken', token);
-                formData.append('chatId', chatId);
-
-                let chunkStart = Date.now();
-                try {
-                    const res = await fetch(`${backendUrl}/api/upload`, { method: 'POST', body: formData });
-                    const data = await res.json();
-                    if(data.success) {
-                        telegramMessages.push({ fileId: data.fileId });
-                        
-                        let elapsed = (Date.now() - chunkStart) / 1000;
-                        let speed = elapsed > 0 ? (chunk.size / (1024 * 1024)) / elapsed : 0;
-                        uploadSpeedText.textContent = speed.toFixed(2) + ' MB/s';
-
-                        let percent = Math.round(((i + 1) / totalParts) * 100);
-                        progressBar.style.width = percent + '%';
-                        progressPercentText.textContent = percent + '%';
-                    } else {
-                        throw new Error(data.error);
-                    }
-                } catch(err) {
-                    showToast('Upload failed on part ' + (i+1) + ': ' + err.message, 'info');
-                    progressContainer.classList.add('hidden');
-                    return;
-                }
-            }
-
-            progressStatusText.textContent = 'Upload complete!';
-            vaultFiles.unshift({
-                fileName: file.name,
-                size: file.size,
-                parts: totalParts,
-                telegramMessages,
-                type: cat,
-                date: new Date().toISOString()
-            });
-            localStorage.setItem('quikr_files', JSON.stringify(vaultFiles));
-
-            setTimeout(() => {
-                document.getElementById('uploadModal').classList.add('hidden');
-                loadVaultData();
-                showToast('Large file successfully chunked & uploaded!', 'success');
-            }, 300);
-        });
-
-        function openDownloadModal(index) {
-            activeFileForChunks = vaultFiles[index];
-            document.getElementById('chunksListContainer').innerHTML = activeFileForChunks.telegramMessages.map((m, i) => `
-                <div class="p-2 bg-cardBg rounded-lg text-xs text-slate-300 flex justify-between items-center">
-                    <span>Part ${i + 1} of ${activeFileForChunks.parts}</span>
-                    <span class="text-cyan-400 text-[10px]">Ready</span>
-                </div>
-            `).join('');
-            document.getElementById('downloadModal').classList.remove('hidden');
-        }
-        document.getElementById('closeDownloadBtn').addEventListener('click', () => document.getElementById('downloadModal').classList.add('hidden'));
-
-        document.getElementById('reassembleBtn').addEventListener('click', async () => {
-            if(!activeFileForChunks) return;
-            showToast('Stitching file chunks together...', 'info');
-            try {
-                const res = await fetch(`${backendUrl}/api/download`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ botToken: localStorage.getItem('botToken'), telegramMessages: activeFileForChunks.telegramMessages, fileName: activeFileForChunks.fileName })
-                });
-                const blob = await res.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = activeFileForChunks.fileName;
-                a.click();
-                document.getElementById('downloadModal').classList.add('hidden');
-                showToast('Download started!', 'success');
-            } catch(e) {
-                showToast('Download reassembly failed', 'info');
-            }
-        });
-
-        loadVaultData();
-    </script>
-</body>
-</html>
+            let telegramMessages = new Array(to
