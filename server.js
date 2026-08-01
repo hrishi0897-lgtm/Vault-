@@ -50,7 +50,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-// Turbo Parallel Stream Stitcher for Fast Downloading
+// Robust chunk reassembler and downloader
 app.post('/api/download', async (req, res) => {
     try {
         const { botToken, telegramMessages, fileName } = req.body;
@@ -58,26 +58,29 @@ app.post('/api/download', async (req, res) => {
             return res.status(400).json({ error: 'Missing download parameters' });
         }
 
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(fileName)}"`);
         res.setHeader('Content-Type', 'application/octet-stream');
 
-        // Resolve all Telegram file paths concurrently
-        const fileUrls = await Promise.all(
-            telegramMessages.map(async (item) => {
-                const meta = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);
-                return `https://api.telegram.org/file/bot${botToken}/${meta.data.result.file_path}`;
-            })
-        );
+        for (const item of telegramMessages) {
+            if (!item || !item.fileId) continue;
+            
+            // Get valid download path from Telegram API
+            const metaRes = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);
+            if (!metaRes.data.ok || !metaRes.data.result.file_path) {
+                throw new Error('Failed to resolve chunk file ID from Telegram');
+            }
+            
+            const filePath = metaRes.data.result.file_path;
+            const chunkUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
 
-        // Stream and pipe chunks sequentially in order to maintain file integrity at high speed
-        for (const url of fileUrls) {
             const chunkRes = await axios({
                 method: 'get',
-                url: url,
+                url: chunkUrl,
                 responseType: 'stream',
                 timeout: 120000
             });
 
+            // Stream chunk safely to browser response
             await new Promise((resolve, reject) => {
                 chunkRes.data.pipe(res, { end: false });
                 chunkRes.data.on('end', resolve);
@@ -86,7 +89,7 @@ app.post('/api/download', async (req, res) => {
         }
         res.end();
     } catch (err) {
-        console.error(err);
+        console.error('Download error:', err.message);
         if (!res.headersSent) {
             res.status(500).json({ error: err.message });
         } else {
