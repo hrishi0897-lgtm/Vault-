@@ -58,7 +58,19 @@
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4">
             <h3 class="text-lg font-bold">Upload File</h3>
             <input type="file" id="fileInput" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-darkBg">
-            <div class="flex justify-end space-x-2">
+            
+            <!-- Upload Progress Bar Container -->
+            <div id="progressContainer" class="hidden space-y-2 pt-2">
+                <div class="flex justify-between text-xs text-slate-400">
+                    <span id="progressStatusText">Uploading & Chunking to Telegram...</span>
+                    <span id="progressPercentText">0%</span>
+                </div>
+                <div class="w-full bg-cardBorder rounded-full h-2.5 overflow-hidden">
+                    <div id="progressBar" class="bg-cyan-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
                 <button id="closeUploadBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-sm">Cancel</button>
                 <button id="startUploadBtn" class="px-4 py-2 bg-cyan-500 text-darkBg rounded-xl text-sm font-semibold">Start Upload</button>
             </div>
@@ -82,7 +94,6 @@
         const backendUrl = "https://vault-pmt4.onrender.com";
         let vaultFiles = JSON.parse(localStorage.getItem('vault_files')) || [];
 
-        // DOM Elements Event Listeners (Fixes mobile touch/click issues)
         document.getElementById('settingsModalBtn').addEventListener('click', () => {
             document.getElementById('botTokenInput').value = localStorage.getItem('botToken') || '';
             document.getElementById('chatIdInput').value = localStorage.getItem('chatId') || '';
@@ -108,13 +119,16 @@
 
         document.getElementById('uploadModalBtn').addEventListener('click', () => {
             document.getElementById('uploadModal').classList.remove('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('fileInput').value = '';
         });
 
         document.getElementById('closeUploadBtn').addEventListener('click', () => {
             document.getElementById('uploadModal').classList.add('hidden');
         });
 
-        document.getElementById('startUploadBtn').addEventListener('click', async () => {
+        document.getElementById('startUploadBtn').addEventListener('click', () => {
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) return alert('Select a file first!');
             
@@ -122,27 +136,75 @@
             const chatId = localStorage.getItem('chatId');
             if (!botToken || !chatId) return alert('Please configure your bot token and chat ID in settings first!');
 
+            const file = fileInput.files[0];
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            formData.append('file', file);
             formData.append('botToken', botToken);
             formData.append('chatId', chatId);
 
-            alert('Uploading and chunking file to Telegram via backend...');
-            try {
-                const res = await fetch(`${backendUrl}/api/upload`, { method: 'POST', body: formData });
-                const data = await res.json();
-                if(data.success) {
-                    vaultFiles.unshift(data);
-                    localStorage.setItem('vault_files', JSON.stringify(vaultFiles));
-                    document.getElementById('uploadModal').classList.add('hidden');
-                    renderFiles();
-                    alert('File uploaded successfully!');
-                } else {
-                    alert('Upload failed: ' + (data.error || 'Unknown error'));
+            // Show progress bar container
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercentText = document.getElementById('progressPercentText');
+            const progressStatusText = document.getElementById('progressStatusText');
+            
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '10%';
+            progressPercentText.textContent = '10%';
+            progressStatusText.textContent = 'Preparing chunks & uploading...';
+
+            // Use XMLHttpRequest to track live upload progress percentage
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${backendUrl}/api/upload`, true);
+
+            xhr.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    // Map upload progress from 10% to 90%
+                    const percentComplete = Math.round((e.loaded / e.total) * 80) + 10;
+                    progressBar.style.width = percentComplete + '%';
+                    progressPercentText.textContent = percentComplete + '%';
+                    if(percentComplete >= 90) {
+                        progressStatusText.textContent = 'Stitching & finalizing on Telegram...';
+                    }
                 }
-            } catch (err) {
+            };
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.success) {
+                            progressBar.style.width = '100%';
+                            progressPercentText.textContent = '100%';
+                            progressStatusText.textContent = 'Upload complete!';
+                            
+                            vaultFiles.unshift(data);
+                            localStorage.setItem('vault_files', JSON.stringify(vaultFiles));
+                            setTimeout(() => {
+                                document.getElementById('uploadModal').classList.add('hidden');
+                                renderFiles();
+                                alert('File uploaded successfully!');
+                            }, 500);
+                        } else {
+                            alert('Upload failed: ' + (data.error || 'Unknown error'));
+                            progressContainer.classList.add('hidden');
+                        }
+                    } catch (parseErr) {
+                        alert('Server response error.');
+                        progressContainer.classList.add('hidden');
+                    }
+                } else {
+                    alert('Server error during upload.');
+                    progressContainer.classList.add('hidden');
+                }
+            };
+
+            xhr.onerror = function () {
                 alert('Error connecting to backend server.');
-            }
+                progressContainer.classList.add('hidden');
+            };
+
+            xhr.send(formData);
         });
 
         function renderFiles() {
