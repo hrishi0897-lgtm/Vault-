@@ -122,7 +122,7 @@
     <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-cardBorder">
             <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-bolt text-cyan-400"></i> Max-Speed Turbo Upload</h3>
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-bolt text-cyan-400"></i> Turbo High-Speed Upload</h3>
                 <button id="closeUploadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             
@@ -142,7 +142,7 @@
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Max-Speed Upload</button>
+                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Turbo Upload</button>
             </div>
         </div>
     </div>
@@ -281,7 +281,7 @@
         });
         document.getElementById('closeUploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
 
-        // Max-Speed Turbo Parallel Chunk Upload (6 concurrent streams)
+        // Turbo Parallel Chunk Upload with Precise Real-Time Speed Tracking (MB/s)
         document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if(fileInput.files.length === 0) return showToast('Please select a file first.', 'info');
@@ -303,12 +303,12 @@
             
             progressContainer.classList.remove('hidden');
 
-            const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB optimal chunks for speed
+            const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB optimal chunks
             const totalParts = Math.ceil(file.size / CHUNK_SIZE);
             let telegramMessages = new Array(totalParts);
-            let completedParts = 0;
+            let uploadedBytesTotal = 0;
             let startTime = Date.now();
-            let CONCURRENCY = 6; // Upload 6 chunks simultaneously
+            let CONCURRENCY = 6; // 6 parallel uploads
 
             async function uploadChunk(i) {
                 const start = i * CHUNK_SIZE;
@@ -320,22 +320,53 @@
                 formData.append('botToken', token);
                 formData.append('chatId', chatId);
 
-                const res = await fetch(`${backendUrl}/api/upload`, { method: 'POST', body: formData });
-                const data = await res.json();
-                if(!data.success) throw new Error(data.error || 'Upload failed');
-                
-                telegramMessages[i] = { fileId: data.fileId };
-                completedParts++;
+                // Use XMLHttpRequest for real-time chunk progress calculation
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', `${backendUrl}/api/upload`, true);
 
-                let elapsed = (Date.now() - startTime) / 1000;
-                let uploadedBytes = completedParts * CHUNK_SIZE;
-                let speed = elapsed > 0 ? (Math.min(uploadedBytes, file.size) / (1024 * 1024)) / elapsed : 0;
-                uploadSpeedText.textContent = speed.toFixed(2) + ' MB/s';
+                    let lastLoaded = 0;
+                    xhr.upload.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            let diff = e.loaded - lastLoaded;
+                            lastLoaded = e.loaded;
+                            uploadedBytesTotal += diff;
 
-                let percent = Math.round((completedParts / totalParts) * 100);
-                progressBar.style.width = percent + '%';
-                progressPercentText.textContent = percent + '%';
-                progressStatusText.textContent = `Max-Speed: ${completedParts}/${totalParts} chunks...`;
+                            // Real-time speed calculation across all parallel streams
+                            let elapsed = (Date.now() - startTime) / 1000;
+                            let currentSpeed = elapsed > 0 ? (uploadedBytesTotal / (1024 * 1024)) / elapsed : 0;
+                            uploadSpeedText.textContent = currentSpeed.toFixed(2) + ' MB/s';
+                        }
+                    };
+
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            try {
+                                const data = JSON.parse(xhr.responseText);
+                                if (data.success) {
+                                    telegramMessages[i] = { fileId: data.fileId };
+                                    
+                                    // Update overall progress bar based on completed chunks
+                                    let completedChunks = telegramMessages.filter(Boolean).length;
+                                    let percent = Math.round((completedChunks / totalParts) * 100);
+                                    progressBar.style.width = percent + '%';
+                                    progressPercentText.textContent = percent + '%';
+                                    progressStatusText.textContent = `Turbo uploading (${completedChunks}/${totalParts})...`;
+                                    resolve();
+                                } else {
+                                    reject(new Error(data.error || 'Upload failed'));
+                                }
+                            } catch (err) {
+                                reject(new Error('Invalid response'));
+                            }
+                        } else {
+                            reject(new Error('Server error ' + xhr.status));
+                        }
+                    };
+
+                    xhr.onerror = function() { reject(new Error('Network error')); };
+                    xhr.send(formData);
+                });
             }
 
             try {
