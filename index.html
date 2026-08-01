@@ -44,8 +44,8 @@
             </div>
         </div>
         <div class="flex items-center space-x-3">
-            <button onclick="openUploadModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg">Upload</button>
-            <button onclick="openSettingsModal()" class="w-10 h-10 rounded-xl bg-cardBorder flex items-center justify-center text-slate-300"><i class="fa-solid fa-gear"></i></button>
+            <button id="uploadModalBtn" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg">Upload</button>
+            <button id="settingsModalBtn" class="w-10 h-10 rounded-xl bg-cardBorder flex items-center justify-center text-slate-300"><i class="fa-solid fa-gear"></i></button>
         </div>
     </header>
 
@@ -59,8 +59,8 @@
             <h3 class="text-lg font-bold">Upload File</h3>
             <input type="file" id="fileInput" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-500 file:text-darkBg">
             <div class="flex justify-end space-x-2">
-                <button onclick="closeUploadModal()" class="px-4 py-2 bg-cardBorder rounded-xl text-sm">Cancel</button>
-                <button onclick="startUpload()" class="px-4 py-2 bg-cyan-500 text-darkBg rounded-xl text-sm font-semibold">Start Upload</button>
+                <button id="closeUploadBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-sm">Cancel</button>
+                <button id="startUploadBtn" class="px-4 py-2 bg-cyan-500 text-darkBg rounded-xl text-sm font-semibold">Start Upload</button>
             </div>
         </div>
     </div>
@@ -72,33 +72,49 @@
             <input type="password" id="botTokenInput" placeholder="Bot Token" class="w-full bg-cardBg border border-cardBorder rounded-xl px-4 py-2 text-sm text-slate-200">
             <input type="text" id="chatIdInput" placeholder="Chat ID" class="w-full bg-cardBg border border-cardBorder rounded-xl px-4 py-2 text-sm text-slate-200">
             <div class="flex justify-end space-x-2">
-                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-cardBorder rounded-xl text-sm">Cancel</button>
-                <button onclick="saveSettings()" class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm">Save</button>
+                <button id="closeSettingsBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-sm">Cancel</button>
+                <button id="saveSettingsBtn" class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold">Save Settings</button>
             </div>
         </div>
     </div>
 
     <script>
-        let backendUrl = "https://vault-pmt4.onrender.com"; // Updated with your live Render backend URL
+        const backendUrl = "https://vault-pmt4.onrender.com";
         let vaultFiles = JSON.parse(localStorage.getItem('vault_files')) || [];
 
-        function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
-        function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
-        function openSettingsModal() { 
+        // DOM Elements Event Listeners (Fixes mobile touch/click issues)
+        document.getElementById('settingsModalBtn').addEventListener('click', () => {
             document.getElementById('botTokenInput').value = localStorage.getItem('botToken') || '';
             document.getElementById('chatIdInput').value = localStorage.getItem('chatId') || '';
-            document.getElementById('settingsModal').classList.remove('hidden'); 
-        }
-        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+            document.getElementById('settingsModal').classList.remove('hidden');
+        });
 
-        function saveSettings() {
-            localStorage.setItem('botToken', document.getElementById('botTokenInput').value);
-            localStorage.setItem('chatId', document.getElementById('chatIdInput').value);
-            closeSettingsModal();
-            alert('Settings saved!');
-        }
+        document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.add('hidden');
+        });
 
-        async function startUpload() {
+        document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+            const token = document.getElementById('botTokenInput').value.trim();
+            const chatId = document.getElementById('chatIdInput').value.trim();
+            if(!token || !chatId) {
+                alert('Please enter both Bot Token and Chat ID');
+                return;
+            }
+            localStorage.setItem('botToken', token);
+            localStorage.setItem('chatId', chatId);
+            document.getElementById('settingsModal').classList.add('hidden');
+            alert('Settings saved successfully!');
+        });
+
+        document.getElementById('uploadModalBtn').addEventListener('click', () => {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeUploadBtn').addEventListener('click', () => {
+            document.getElementById('uploadModal').classList.add('hidden');
+        });
+
+        document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) return alert('Select a file first!');
             
@@ -118,19 +134,23 @@
                 if(data.success) {
                     vaultFiles.unshift(data);
                     localStorage.setItem('vault_files', JSON.stringify(vaultFiles));
-                    closeUploadModal();
+                    document.getElementById('uploadModal').classList.add('hidden');
                     renderFiles();
                     alert('File uploaded successfully!');
                 } else {
-                    alert('Upload failed: ' + data.error);
+                    alert('Upload failed: ' + (data.error || 'Unknown error'));
                 }
             } catch (err) {
                 alert('Error connecting to backend server.');
             }
-        }
+        });
 
         function renderFiles() {
             const container = document.getElementById('filesContainer');
+            if(vaultFiles.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 col-span-full text-center py-8">No files uploaded yet.</p>';
+                return;
+            }
             container.innerHTML = vaultFiles.map((file, index) => `
                 <div class="glass-panel p-4 rounded-xl space-y-3">
                     <p class="text-sm font-semibold truncate">${file.fileName}</p>
