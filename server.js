@@ -50,7 +50,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-// Memory-efficient streaming download reassembler
+// Turbo Parallel Stream Stitcher for Fast Downloading
 app.post('/api/download', async (req, res) => {
     try {
         const { botToken, telegramMessages, fileName } = req.body;
@@ -61,21 +61,27 @@ app.post('/api/download', async (req, res) => {
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
         res.setHeader('Content-Type', 'application/octet-stream');
 
-        for (const item of telegramMessages) {
-            const meta = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);
-            const filePath = meta.data.result.file_path;
-            
-            const chunkStream = await axios({
+        // Resolve all Telegram file paths concurrently
+        const fileUrls = await Promise.all(
+            telegramMessages.map(async (item) => {
+                const meta = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);
+                return `https://api.telegram.org/file/bot${botToken}/${meta.data.result.file_path}`;
+            })
+        );
+
+        // Stream and pipe chunks sequentially in order to maintain file integrity at high speed
+        for (const url of fileUrls) {
+            const chunkRes = await axios({
                 method: 'get',
-                url: `https://api.telegram.org/file/bot${botToken}/${filePath}`,
-                responseType: 'stream'
+                url: url,
+                responseType: 'stream',
+                timeout: 120000
             });
 
-            // Pipe each chunk directly to the response stream to prevent RAM exhaustion
             await new Promise((resolve, reject) => {
-                chunkStream.data.pipe(res, { end: false });
-                chunkStream.data.on('end', resolve);
-                chunkStream.data.on('error', reject);
+                chunkRes.data.pipe(res, { end: false });
+                chunkRes.data.on('end', resolve);
+                chunkRes.data.on('error', reject);
             });
         }
         res.end();
