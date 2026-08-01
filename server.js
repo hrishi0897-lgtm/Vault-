@@ -8,7 +8,13 @@ const path = require('path');
 
 const app = express();
 
-// Ensure uploads directory exists
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+}));
+app.use(express.json());
+
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -16,14 +22,13 @@ if (!fs.existsSync(uploadDir)) {
 
 const upload = multer({ dest: uploadDir });
 
-app.use(cors());
-app.use(express.json());
-
 app.post('/api/upload', upload.single('file'), async (req, res) => {
     try {
         const { botToken, chatId } = req.body;
         const file = req.file;
-        if (!file) return res.status(400).json({ error: 'No file uploaded' });
+        if (!file || !botToken || !chatId) {
+            return res.status(400).json({ error: 'Missing file, botToken, or chatId' });
+        }
 
         const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks
         const fileBuffer = fs.readFileSync(file.path);
@@ -48,6 +53,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         fs.unlinkSync(file.path);
         res.json({ success: true, fileName: file.originalname, size: file.size, parts: totalParts, telegramMessages });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 });
