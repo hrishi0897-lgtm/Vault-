@@ -1,1 +1,72 @@
-const express = require(&#39;express&#39;);<br/>const multer = require(&#39;multer&#39;);<br/>const axios = require(&#39;axios&#39;);<br/>const FormData = require(&#39;form-data&#39;);<br/>const cors = require(&#39;cors&#39;);<br/>const fs = require(&#39;fs&#39;);<br/><br/>const app = express();<br/>const upload = multer({ dest: &#39;uploads/&#39; });<br/><br/>app.use(cors());<br/>app.use(express.json());<br/><br/>app.post(&#39;/api/upload&#39;, upload.single(&#39;file&#39;), async (req, res) =&gt; {<br/>    try {<br/>        const { botToken, chatId } = req.body;<br/>        const file = req.file;<br/>        const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks<br/>        const fileBuffer = fs.readFileSync(file.path);<br/>        const totalParts = Math.ceil(file.size / CHUNK_SIZE);<br/>        const telegramMessages = [];<br/><br/>        for (let i = 0; i &lt; totalParts; i++) {<br/>            const chunk = fileBuffer.slice(i * CHUNK_SIZE, Math.min((i + 1) * CHUNK_SIZE, file.size));<br/>            const formData = new FormData();<br/>            formData.append(&#39;chat_id&#39;, chatId);<br/>            formData.append(&#39;document&#39;, chunk, { filename: `${file.originalname}.part${i + 1}` });<br/><br/>            const response = await axios.post(`https://api.telegram.org/bot${botToken}/sendDocument`, formData, {<br/>                headers: formData.getHeaders(),<br/>                maxContentLength: Infinity, maxBodyLength: Infinity<br/>            });<br/>            if (response.data.ok) {<br/>                telegramMessages.push({ fileId: response.data.result.document.file_id });<br/>            }<br/>        }<br/>        fs.unlinkSync(file.path);<br/>        res.json({ success: true, fileName: file.originalname, size: file.size, parts: totalParts, telegramMessages });<br/>    } catch (err) {<br/>        res.status(500).json({ error: err.message });<br/>    }<br/>});<br/><br/>app.post(&#39;/api/download&#39;, async (req, res) =&gt; {<br/>    try {<br/>        const { botToken, telegramMessages, fileName } = req.body;<br/>        let buffers = [];<br/>        for (const item of telegramMessages) {<br/>            const meta = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);<br/>            const chunkRes = await axios.get(`https://api.telegram.org/file/bot${botToken}/${meta.data.result.file_path}`, { responseType: &#39;arraybuffer&#39; });<br/>            buffers.push(Buffer.from(chunkRes.data));<br/>        }<br/>        res.setHeader(&#39;Content-Disposition&#39;, `attachment; filename=&quot;${fileName}&quot;`);<br/>        res.send(Buffer.concat(buffers));<br/>    } catch (err) {<br/>        res.status(500).json({ error: err.message });<br/>    }<br/>});<br/><br/>app.listen(process.env.PORT || 3000, () =&gt; console.log(&#39;Server running&#39;));<br/>
+const express = require('express');
+const multer = require('multer');
+const axios = require('axios');
+const FormData = require('form-data');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const upload = multer({ dest: uploadDir });
+
+app.use(cors());
+app.use(express.json());
+
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+        const { botToken, chatId } = req.body;
+        const file = req.file;
+        if (!file) return res.status(400).json({ error: 'No file uploaded' });
+
+        const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks
+        const fileBuffer = fs.readFileSync(file.path);
+        const totalParts = Math.ceil(file.size / CHUNK_SIZE);
+        const telegramMessages = [];
+
+        for (let i = 0; i < totalParts; i++) {
+            const chunk = fileBuffer.slice(i * CHUNK_SIZE, Math.min((i + 1) * CHUNK_SIZE, file.size));
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('document', chunk, { filename: `${file.originalname}.part${i + 1}` });
+
+            const response = await axios.post(`https://api.telegram.org/bot${botToken}/sendDocument`, formData, {
+                headers: formData.getHeaders(),
+                maxContentLength: Infinity, 
+                maxBodyLength: Infinity
+            });
+            if (response.data.ok) {
+                telegramMessages.push({ fileId: response.data.result.document.file_id });
+            }
+        }
+        fs.unlinkSync(file.path);
+        res.json({ success: true, fileName: file.originalname, size: file.size, parts: totalParts, telegramMessages });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/download', async (req, res) => {
+    try {
+        const { botToken, telegramMessages, fileName } = req.body;
+        let buffers = [];
+        for (const item of telegramMessages) {
+            const meta = await axios.get(`https://api.telegram.org/bot${botToken}/getFile?file_id=${item.fileId}`);
+            const chunkRes = await axios.get(`https://api.telegram.org/file/bot${botToken}/${meta.data.result.file_path}`, { responseType: 'arraybuffer' });
+            buffers.push(Buffer.from(chunkRes.data));
+        }
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.send(Buffer.concat(buffers));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
