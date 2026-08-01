@@ -1,11 +1,10 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quikr Vault - Telegram Unlimited Cloud Storage</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,26 +23,14 @@
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0f19;
-            color: #f8fafc;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #0b0f19; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-        .glass-panel {
-            background: rgba(19, 28, 46, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        .glass-panel { background: rgba(19, 28, 46, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
         @keyframes pulseGlow {
             0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.15); }
             50% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.35); }
@@ -51,50 +38,30 @@
         .engine-active { animation: pulseGlow 3s infinite; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased">
 
-    <!-- Top Header Navigation -->
+    <!-- Header -->
     <header class="sticky top-0 z-50 glass-panel border-b border-cardBorder px-4 lg:px-8 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
                 <i class="fa-solid fa-vault text-darkBg text-lg font-bold"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg tracking-tight flex items-center gap-1.5">
-                    Quikr <span class="text-cyan-400">Vault</span>
-                </h1>
+                <h1 class="font-bold text-lg tracking-tight flex items-center gap-1.5">Quikr <span class="text-cyan-400">Vault</span></h1>
                 <p class="text-[11px] text-slate-400">Telegram Unlimited Cloud Storage</p>
             </div>
         </div>
-
         <div class="flex items-center space-x-2.5">
-            <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Vault Engine Active</span>
-            </div>
-            <button id="uploadModalBtn" class="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>Upload</span>
-            </button>
-            <button id="settingsModalBtn" class="w-10 h-10 rounded-xl bg-cardBorder/60 hover:bg-cardBorder flex items-center justify-center text-slate-300 transition-colors">
-                <i class="fa-solid fa-gear"></i>
-            </button>
+            <button id="uploadModalBtn" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg">Upload</button>
+            <button id="settingsModalBtn" class="w-10 h-10 rounded-xl bg-cardBorder flex items-center justify-center text-slate-300"><i class="fa-solid fa-gear"></i></button>
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-6 space-y-6">
-
-        <!-- Storage Overview Section -->
+        <!-- Overview -->
         <section class="glass-panel rounded-2xl p-6 relative overflow-hidden engine-active">
-            <div class="absolute top-4 right-4 hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-emerald-400 text-xs font-semibold">
-                <i class="fa-solid fa-bolt text-xs"></i>
-                <span>Vault Engine Active</span>
-            </div>
             <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-4">Storage Overview</div>
-
             <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <!-- Circular Ring Gauge -->
                 <div class="relative w-44 h-44 flex items-center justify-center flex-shrink-0">
                     <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="42" stroke="#1e293b" stroke-width="8" fill="none"></circle>
@@ -112,98 +79,27 @@
                         <span class="text-xs text-cyan-400 font-medium mt-0.5">of ∞ Capacity</span>
                     </div>
                 </div>
-
-                <!-- Category Breakdown Grid -->
                 <div class="flex-1 grid grid-cols-2 gap-3.5 w-full max-w-md">
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50 flex items-center space-x-3">
-                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></div>
-                        <div>
-                            <p class="text-[11px] text-slate-400">Photos</p>
-                            <p id="sizePhotos" class="text-xs font-bold text-slate-200">0 B</p>
-                        </div>
-                    </div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50 flex items-center space-x-3">
-                        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 flex-shrink-0"></div>
-                        <div>
-                            <p class="text-[11px] text-slate-400">Videos</p>
-                            <p id="sizeVideos" class="text-xs font-bold text-slate-200">0 B</p>
-                        </div>
-                    </div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50 flex items-center space-x-3">
-                        <div class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></div>
-                        <div>
-                            <p class="text-[11px] text-slate-400">Docs</p>
-                            <p id="sizeDocs" class="text-xs font-bold text-slate-200">0 B</p>
-                        </div>
-                    </div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50 flex items-center space-x-3">
-                        <div class="w-2.5 h-2.5 rounded-full bg-purple-400 flex-shrink-0"></div>
-                        <div>
-                            <p class="text-[11px] text-slate-400">Other</p>
-                            <p id="sizeOther" class="text-xs font-bold text-slate-200">0 B</p>
-                        </div>
-                    </div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Photos</p><p id="sizePhotos" class="text-xs font-bold text-slate-200">0 B</p></div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Videos</p><p id="sizeVideos" class="text-xs font-bold text-slate-200">0 B</p></div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Docs</p><p id="sizeDocs" class="text-xs font-bold text-slate-200">0 B</p></div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Other</p><p id="sizeOther" class="text-xs font-bold text-slate-200">0 B</p></div>
                 </div>
             </div>
         </section>
 
-        <!-- Folder & Navigation Bar -->
+        <!-- Files Section -->
         <section class="space-y-4">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div class="flex items-center space-x-2 text-slate-200 font-semibold text-base">
-                    <i class="fa-solid fa-folder-open text-amber-400"></i>
-                    <span id="currentBreadcrumb">Root Vault</span>
-                </div>
-                <button id="newFolderModalBtn" class="flex items-center space-x-2 bg-cardBorder/60 hover:bg-cardBorder text-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-medium border border-cardBorder transition-colors">
-                    <i class="fa-solid fa-folder-plus text-cyan-400"></i>
-                    <span>New Folder</span>
-                </button>
-            </div>
-
-            <!-- Folders List Container -->
-            <div id="foldersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
-
-            <!-- Search and Filter Bar -->
-            <div class="flex flex-col md:flex-row items-center gap-3 pt-1">
-                <div class="relative flex-1 w-full">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="searchInput" placeholder="Search files in vault..." class="w-full bg-cardBg border border-cardBorder rounded-xl pl-11 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors">
-                </div>
-
-                <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
-                    <select id="sortSelect" class="bg-cardBg border border-cardBorder rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="name">Name (A-Z)</option>
-                        <option value="size">Largest Size</option>
-                    </select>
-
-                    <div class="flex items-center bg-cardBg border border-cardBorder rounded-xl p-1">
-                        <button id="gridViewBtn" class="p-2 rounded-lg bg-cyan-500/20 text-cyan-400 text-xs transition-colors"><i class="fa-solid fa-grip"></i></button>
-                        <button id="listViewBtn" class="p-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs transition-colors"><i class="fa-solid fa-list"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category Filter Pills -->
-            <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                <button class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 text-darkBg transition-all flex-shrink-0" data-category="all">All Files</button>
-                <button class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cardBg border border-cardBorder text-slate-400 hover:text-slate-200 transition-all flex-shrink-0" data-category="photos">Photos</button>
-                <button class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cardBg border border-cardBorder text-slate-400 hover:text-slate-200 transition-all flex-shrink-0" data-category="videos">Videos</button>
-                <button class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cardBg border border-cardBorder text-slate-400 hover:text-slate-200 transition-all flex-shrink-0" data-category="docs">Documents</button>
-                <button class="cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cardBg border border-cardBorder text-slate-400 hover:text-slate-200 transition-all flex-shrink-0" data-category="others">Others</button>
-            </div>
+            <div class="flex justify-between items-center"><span id="currentBreadcrumb" class="text-slate-200 font-semibold text-base">Root Vault</span></div>
+            <div id="filesContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         </section>
-
-        <!-- Files Display Section -->
-        <section id="filesContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></section>
     </main>
 
     <!-- Upload Modal -->
     <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4">
-            <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> Upload to Telegram Vault</h3>
-            <input type="file" id="fileInput" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-500 file:text-darkBg">
+            <h3 class="text-base font-bold text-slate-100">Upload to Telegram Vault</h3>
+            <input type="file" id="fileInput" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500 file:text-darkBg file:font-semibold">
             
             <div id="progressContainer" class="hidden space-y-2 pt-2">
                 <div class="flex justify-between text-xs text-slate-400">
@@ -216,8 +112,8 @@
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button id="closeUploadBtn" class="px-4 py-2 bg-cardBorder/60 hover:bg-cardBorder rounded-xl text-xs text-slate-300">Cancel</button>
-                <button id="startUploadBtn" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-semibold transition-all">Start Upload</button>
+                <button id="closeUploadBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-xs">Cancel</button>
+                <button id="startUploadBtn" class="px-4 py-2 bg-cyan-500 text-darkBg rounded-xl text-xs font-semibold">Start Upload</button>
             </div>
         </div>
     </div>
@@ -225,61 +121,29 @@
     <!-- Download Chunks Modal -->
     <div id="downloadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-link text-cyan-400"></i> Vault File Download Chunks</h3>
-                <button id="closeDownloadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-slate-400">Large files are split into parts via Telegram. Reassemble them into a single file or download parts.</p>
+            <div class="flex justify-between items-center"><h3 class="text-base font-bold">Download File Chunks</h3><button id="closeDownloadBtn" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="chunksListContainer" class="space-y-2 max-h-48 overflow-y-auto"></div>
-            <div class="flex items-center justify-between pt-2 border-t border-cardBorder">
-                <button id="reassembleBtn" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-darkBg font-bold px-4 py-2 rounded-xl text-xs shadow-lg transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-download"></i> Reassemble & Download
-                </button>
-                <button id="closeDownloadBtn2" class="px-4 py-2 bg-cardBorder/60 rounded-xl text-xs text-slate-300">Close</button>
-            </div>
+            <button id="reassembleBtn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-darkBg font-bold rounded-xl text-xs">Reassemble & Download Single File</button>
         </div>
     </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4">
-            <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-400"></i> Telegram Bot Settings</h3>
-            <div>
-                <label class="block text-[11px] font-medium text-slate-300 mb-1">Telegram Bot Token</label>
-                <input type="password" id="botTokenInput" placeholder="123456789:ABCdefGhIJKlmNo..." class="w-full bg-cardBg border border-cardBorder rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
-            </div>
-            <div>
-                <label class="block text-[11px] font-medium text-slate-300 mb-1">Telegram Chat ID / Channel ID</label>
-                <input type="text" id="chatIdInput" placeholder="-100xxxxxxxxxx" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
-            </div>
-            <div class="flex justify-end space-x-2 pt-2">
-                <button id="closeSettingsBtn" class="px-4 py-2 bg-cardBorder/60 rounded-xl text-xs text-slate-300">Cancel</button>
-                <button id="saveSettingsBtn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl text-xs font-semibold transition-all">Save Credentials</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- New Folder Modal -->
-    <div id="newFolderModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-sm rounded-2xl p-6 space-y-4">
-            <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-amber-400"></i> Create New Folder</h3>
-            <input type="text" id="folderNameInput" placeholder="Folder Name" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+            <h3 class="text-base font-bold">Telegram Bot Settings</h3>
+            <input type="password" id="botTokenInput" placeholder="Bot Token" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3 py-2 text-xs text-slate-200">
+            <input type="text" id="chatIdInput" placeholder="Chat ID" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3 py-2 text-xs text-slate-200">
             <div class="flex justify-end space-x-2">
-                <button id="closeFolderBtn" class="px-3 py-1.5 bg-cardBorder/60 rounded-xl text-xs text-slate-300">Cancel</button>
-                <button id="createFolderBtn" class="px-3.5 py-1.5 bg-cyan-500 text-darkBg rounded-xl text-xs font-semibold">Create</button>
+                <button id="closeSettingsBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-xs">Cancel</button>
+                <button id="saveSettingsBtn" class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-semibold">Save</button>
             </div>
         </div>
     </div>
 
-    <!-- App JavaScript Logic -->
     <script>
         const backendUrl = "https://vault-pmt4.onrender.com";
         let vaultState = {
             currentFolderId: 'root',
-            currentFolderBreadcrumb: 'Root Vault',
-            viewMode: 'grid',
-            categoryFilter: 'all',
-            folders: JSON.parse(localStorage.getItem('quikr_folders')) || [],
             files: JSON.parse(localStorage.getItem('quikr_files')) || []
         };
         let activeFileForChunks = null;
@@ -292,12 +156,6 @@
         }
 
         function loadVaultData() {
-            renderStorageOverview();
-            renderFolders();
-            renderFiles();
-        }
-
-        function renderStorageOverview() {
             let totalBytes = 0, photos = 0, videos = 0, docs = 0, others = 0;
             vaultState.files.forEach(f => {
                 totalBytes += f.size;
@@ -316,131 +174,20 @@
             const circumference = 264;
             const progress = Math.min(totalBytes / (1024 * 1024 * 1024 * 10), 1);
             document.getElementById('storageProgressCircle').style.strokeDashoffset = circumference - (progress * circumference);
-        }
 
-        function renderFolders() {
-            const container = document.getElementById('foldersContainer');
-            const current = vaultState.folders.filter(f => f.parentId === vaultState.currentFolderId);
-            document.getElementById('currentBreadcrumb').textContent = vaultState.currentFolderBreadcrumb;
-
-            let html = '';
-            if (vaultState.currentFolderId !== 'root') {
-                html += `
-                    <div onclick="navigateToFolder('root', 'Root Vault')" class="glass-panel p-3 rounded-xl border border-cardBorder hover:border-cyan-500/50 cursor-pointer flex items-center space-x-3 transition-all">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-arrow-left text-xs"></i></div>
-                        <div class="truncate"><p class="text-xs font-semibold text-slate-200">Back to Root</p></div>
-                    </div>
-                `;
-            }
-            current.forEach(folder => {
-                html += `
-                    <div onclick="navigateToFolder('${folder.id}', '${folder.name}')" class="glass-panel p-3 rounded-xl border border-cardBorder hover:border-cyan-500/50 cursor-pointer flex items-center justify-between transition-all group">
-                        <div class="flex items-center space-x-3 truncate">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-folder text-xs"></i></div>
-                            <div class="truncate"><p class="text-xs font-semibold text-slate-200 group-hover:text-cyan-400 truncate">${folder.name}</p></div>
-                        </div>
-                        <button onclick="event.stopPropagation(); deleteFolder('${folder.id}')" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function renderFiles() {
             const container = document.getElementById('filesContainer');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const sortBy = document.getElementById('sortSelect').value;
-
-            let filtered = vaultState.files.filter(f => {
-                return f.folderId === vaultState.currentFolderId &&
-                       (vaultState.categoryFilter === 'all' || f.type === vaultState.categoryFilter) &&
-                       f.fileName.toLowerCase().includes(search);
-            });
-
-            filtered.sort((a, b) => {
-                if (sortBy === 'newest') return new Date(b.date || 0) - new Date(a.date || 0);
-                if (sortBy === 'oldest') return new Date(a.date || 0) - new Date(b.date || 0);
-                if (sortBy === 'name') return a.fileName.localeCompare(b.fileName);
-                if (sortBy === 'size') return b.size - a.size;
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                        <div class="w-14 h-14 rounded-2xl bg-cardBorder/40 flex items-center justify-center text-slate-500 text-xl mb-3"><i class="fa-solid fa-box-open"></i></div>
-                        <h3 class="text-xs font-semibold text-slate-300">No files found in this folder</h3>
-                        <p class="text-[10px] text-slate-500 mt-0.5">Upload files to begin syncing with Telegram.</p>
-                    </div>
-                `;
+            if(vaultState.files.length === 0) {
+                container.innerHTML = '<p class="col-span-full text-center text-xs text-slate-500 py-12">No files in vault yet.</p>';
                 return;
             }
 
-            container.innerHTML = filtered.map((file) => {
-                const ext = file.fileName.split('.').pop().toUpperCase();
-                let badgeClass = 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
-                let icon = 'fa-solid fa-file';
-                if (file.type === 'photos') { badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'; icon = 'fa-solid fa-image'; }
-                else if (file.type === 'videos') { badgeClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20'; icon = 'fa-solid fa-video'; }
-                else if (file.type === 'docs') { badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20'; icon = 'fa-solid fa-file-lines'; }
-
-                if (vaultState.viewMode === 'grid') {
-                    return `
-                        <div class="glass-panel p-4 rounded-2xl border border-cardBorder hover:border-cyan-500/40 transition-all flex flex-col justify-between space-y-4 group">
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="px-2 py-0.5 rounded-lg border text-[9px] font-bold uppercase tracking-wider ${badgeClass}">${ext}</span>
-                                    <span class="text-[9px] text-slate-500">Vault (${file.parts} Parts)</span>
-                                </div>
-                                <div class="py-4 bg-cardBg/50 rounded-xl border border-cardBorder/40 flex flex-col items-center justify-center text-center">
-                                    <i class="${icon} text-xl text-slate-400 group-hover:text-cyan-400 transition-colors"></i>
-                                    <p class="text-xs font-medium text-slate-200 mt-2 px-3 truncate w-full" title="${file.fileName}">${file.fileName}</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">${formatBytes(file.size)}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between pt-2 border-t border-cardBorder/50">
-                                <button onclick="openDownloadModal('${file.fileName}')" class="flex-1 bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-darkBg py-2 rounded-xl text-xs font-semibold transition-all text-center mr-2">Download Links</button>
-                                <button onclick="deleteFile('${file.fileName}')" class="w-8 h-8 rounded-xl bg-cardBorder/50 hover:bg-red-500/20 hover:text-red-400 text-slate-400 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="col-span-full glass-panel p-3 rounded-xl border border-cardBorder hover:border-cyan-500/40 transition-all flex items-center justify-between">
-                            <div class="flex items-center space-x-3 truncate">
-                                <div class="w-9 h-9 rounded-xl bg-cardBg border border-cardBorder flex items-center justify-center text-cyan-400 flex-shrink-0"><i class="${icon} text-xs"></i></div>
-                                <div class="truncate">
-                                    <p class="text-xs font-semibold text-slate-200 truncate" title="${file.fileName}">${file.fileName}</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">${formatBytes(file.size)} • Vault (${file.parts} Parts)</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 flex-shrink-0">
-                                <button onclick="openDownloadModal('${file.fileName}')" class="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-darkBg text-xs font-semibold transition-all">Download Links</button>
-                                <button onclick="deleteFile('${file.fileName}')" class="p-2 rounded-lg text-slate-400 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                            </div>
-                        </div>
-                    `;
-                }
-            }).join('');
-        }
-
-        function navigateToFolder(id, name) {
-            vaultState.currentFolderId = id;
-            vaultState.currentFolderBreadcrumb = name;
-            loadVaultData();
-        }
-
-        function deleteFile(fileName) {
-            if(!confirm('Remove file from vault?')) return;
-            vaultState.files = vaultState.files.filter(f => f.fileName !== fileName);
-            localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
-            loadVaultData();
-        }
-
-        function deleteFolder(id) {
-            if(!confirm('Delete folder?')) return;
-            vaultState.folders = vaultState.folders.filter(f => f.id !== id);
-            localStorage.setItem('quikr_folders', JSON.stringify(vaultState.folders));
-            loadVaultData();
+            container.innerHTML = vaultState.files.map((file, idx) => `
+                <div class="glass-panel p-4 rounded-2xl border border-cardBorder space-y-3">
+                    <p class="text-xs font-semibold truncate">${file.fileName}</p>
+                    <p class="text-[10px] text-slate-400">${formatBytes(file.size)} • ${file.parts} Parts</p>
+                    <button onclick="openDownloadModal(${idx})" class="w-full py-2 bg-cyan-500/20 text-cyan-400 rounded-xl text-xs font-semibold">Download Links</button>
+                </div>
+            `).join('');
         }
 
         document.getElementById('settingsModalBtn').addEventListener('click', () => {
@@ -449,15 +196,11 @@
             document.getElementById('settingsModal').classList.remove('hidden');
         });
         document.getElementById('closeSettingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.add('hidden'));
-
         document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-            const token = document.getElementById('botTokenInput').value.trim();
-            const chatId = document.getElementById('chatIdInput').value.trim();
-            if(!token || !chatId) return alert('Enter both Bot Token and Chat ID');
-            localStorage.setItem('botToken', token);
-            localStorage.setItem('chatId', chatId);
+            localStorage.setItem('botToken', document.getElementById('botTokenInput').value.trim());
+            localStorage.setItem('chatId', document.getElementById('chatIdInput').value.trim());
             document.getElementById('settingsModal').classList.add('hidden');
-            alert('Telegram credentials saved successfully!');
+            alert('Settings saved!');
         });
 
         document.getElementById('uploadModalBtn').addEventListener('click', () => {
@@ -467,56 +210,19 @@
         });
         document.getElementById('closeUploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
 
-        document.getElementById('newFolderModalBtn').addEventListener('click', () => document.getElementById('newFolderModal').classList.remove('hidden'));
-        document.getElementById('closeFolderBtn').addEventListener('click', () => document.getElementById('newFolderModal').classList.add('hidden'));
-        document.getElementById('createFolderBtn').addEventListener('click', () => {
-            const name = document.getElementById('folderNameInput').value.trim();
-            if(!name) return;
-            vaultState.folders.push({ id: 'f_' + Date.now(), name, parentId: vaultState.currentFolderId });
-            localStorage.setItem('quikr_folders', JSON.stringify(vaultState.folders));
-            document.getElementById('newFolderModal').classList.add('hidden');
-            document.getElementById('folderNameInput').value = '';
-            loadVaultData();
-        });
-
-        document.getElementById('gridViewBtn').addEventListener('click', () => {
-            vaultState.viewMode = 'grid';
-            document.getElementById('gridViewBtn').className = "p-2 rounded-lg bg-cyan-500/20 text-cyan-400 text-xs";
-            document.getElementById('listViewBtn').className = "p-2 rounded-lg text-slate-400 text-xs";
-            renderFiles();
-        });
-        document.getElementById('listViewBtn').addEventListener('click', () => {
-            vaultState.viewMode = 'list';
-            document.getElementById('listViewBtn').className = "p-2 rounded-lg bg-cyan-500/20 text-cyan-400 text-xs";
-            document.getElementById('gridViewBtn').className = "p-2 rounded-lg text-slate-400 text-xs";
-            renderFiles();
-        });
-
-        document.querySelectorAll('.cat-pill').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.cat-pill').forEach(b => b.className = "cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cardBg border border-cardBorder text-slate-400 hover:text-slate-200 transition-all flex-shrink-0");
-                e.target.className = "cat-pill px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500 text-darkBg transition-all flex-shrink-0";
-                vaultState.categoryFilter = e.target.getAttribute('data-category');
-                renderFiles();
-            });
-        });
-
-        document.getElementById('searchInput').addEventListener('input', renderFiles);
-        document.getElementById('sortSelect').addEventListener('change', renderFiles);
-
-        // Client-Side Chunking Upload Handler (Prevents Server Timeout on Large Videos)
+        // Client-side 5MB fast chunking upload handler
         document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
-            if(fileInput.files.length === 0) return alert('Please select a file first.');
+            if(fileInput.files.length === 0) return alert('Select file first.');
             const token = localStorage.getItem('botToken');
             const chatId = localStorage.getItem('chatId');
-            if(!token || !chatId) return alert('Configure Telegram Bot Token & Chat ID in settings first!');
+            if(!token || !chatId) return alert('Configure Telegram settings first!');
 
             const file = fileInput.files[0];
             let cat = 'others';
             if (file.type.startsWith('image/')) cat = 'photos';
             else if (file.type.startsWith('video/')) cat = 'videos';
-            else if (file.type.includes('pdf') || file.type.includes('document')) cat = 'docs';
+            else if (file.type.includes('pdf')) cat = 'docs';
 
             const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
@@ -524,16 +230,8 @@
             const progressStatusText = document.getElementById('progressStatusText');
             
             progressContainer.classList.remove('hidden');
-            progressBar.style.width = '5%';
-            progressPercentText.textContent = '5%';
-            progressStatusText.textContent = 'Waking up server...';
 
-            // Wake up render server first
-            try {
-                await fetch(`${backendUrl}/api/upload`, { method: 'HEAD' }).catch(() => {});
-            } catch(err) {}
-
-            const CHUNK_SIZE = 15 * 1024 * 1024; // 15MB safe chunks
+            const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB fast chunking
             const totalParts = Math.ceil(file.size / CHUNK_SIZE);
             let telegramMessages = [];
 
@@ -542,29 +240,26 @@
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
 
-                const percent = Math.round(((i) / totalParts) * 90) + 5;
+                const percent = Math.round((i / totalParts) * 100);
                 progressBar.style.width = percent + '%';
                 progressPercentText.textContent = percent + '%';
-                progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts} to Telegram...`;
+                progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts}...`;
 
                 const formData = new FormData();
-                formData.append('file', chunk, `${file.name}.part${i + 1}`);
+                formData.append('file', chunk, `${file.name}.part${i + 1}_of_${totalParts}`);
                 formData.append('botToken', token);
                 formData.append('chatId', chatId);
 
                 try {
-                    const response = await fetch(`${backendUrl}/api/upload`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    if(data.success && data.telegramMessages) {
-                        telegramMessages.push(...data.telegramMessages);
+                    const res = await fetch(`${backendUrl}/api/upload`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if(data.success) {
+                        telegramMessages.push({ fileId: data.fileId });
                     } else {
-                        throw new Error(data.error || 'Upload failed');
+                        throw new Error(data.error);
                     }
                 } catch(err) {
-                    alert('Upload error on part ' + (i+1) + ': ' + err.message);
+                    alert('Upload failed on part ' + (i + 1) + ': ' + err.message);
                     progressContainer.classList.add('hidden');
                     return;
                 }
@@ -572,53 +267,43 @@
 
             progressBar.style.width = '100%';
             progressPercentText.textContent = '100%';
-            progressStatusText.textContent = 'Upload complete!';
+            progressStatusText.textContent = 'Complete!';
 
-            const newVaultFile = {
+            vaultState.files.unshift({
                 fileName: file.name,
                 size: file.size,
                 parts: totalParts,
                 telegramMessages,
                 type: cat,
-                folderId: vaultState.currentFolderId,
                 date: new Date().toISOString()
-            };
-
-            vaultState.files.unshift(newVaultFile);
+            });
             localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
 
             setTimeout(() => {
                 document.getElementById('uploadModal').classList.add('hidden');
                 loadVaultData();
-                alert('File successfully chunked & uploaded to Telegram Vault!');
-            }, 400);
+                alert('File uploaded successfully to Telegram Vault!');
+            }, 300);
         });
 
-        function openDownloadModal(fileName) {
-            activeFileForChunks = vaultState.files.find(f => f.fileName === fileName);
-            if(!activeFileForChunks) return;
-            const container = document.getElementById('chunksListContainer');
-            container.innerHTML = activeFileForChunks.telegramMessages.map((msg, i) => `
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-cardBg border border-cardBorder">
-                    <span class="text-xs text-slate-300">Part ${i + 1} of ${activeFileForChunks.parts}</span>
-                    <span class="text-[10px] text-cyan-400">Telegram File ID ready</span>
-                </div>
+        function openDownloadModal(index) {
+            activeFileForChunks = vaultState.files[index];
+            document.getElementById('chunksListContainer').innerHTML = activeFileForChunks.telegramMessages.map((m, i) => `
+                <div class="p-2 bg-cardBg rounded-lg text-xs text-slate-300">Part ${i + 1} of ${activeFileForChunks.parts} ready</div>
             `).join('');
+            document.getElementById('downloadModal').classList.add('flex');
             document.getElementById('downloadModal').classList.remove('hidden');
         }
-
         document.getElementById('closeDownloadBtn').addEventListener('click', () => document.getElementById('downloadModal').classList.add('hidden'));
-        document.getElementById('closeDownloadBtn2').addEventListener('click', () => document.getElementById('downloadModal').classList.add('hidden'));
 
         document.getElementById('reassembleBtn').addEventListener('click', async () => {
             if(!activeFileForChunks) return;
-            const token = localStorage.getItem('botToken');
-            alert('Reassembling chunks from Telegram server...');
+            alert('Reassembling file from Telegram...');
             try {
                 const res = await fetch(`${backendUrl}/api/download`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ botToken: token, telegramMessages: activeFileForChunks.telegramMessages, fileName: activeFileForChunks.fileName })
+                    body: JSON.stringify({ botToken: localStorage.getItem('botToken'), telegramMessages: activeFileForChunks.telegramMessages, fileName: activeFileForChunks.fileName })
                 });
                 const blob = await res.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -628,7 +313,7 @@
                 a.click();
                 document.getElementById('downloadModal').classList.add('hidden');
             } catch(e) {
-                alert('Download reassembly failed');
+                alert('Download failed');
             }
         });
 
@@ -636,5 +321,3 @@
     </script>
 </body>
 </html>
-
-```
