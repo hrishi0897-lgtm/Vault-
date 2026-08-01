@@ -1,11 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quikr Vault - Telegram Unlimited Cloud Storage</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,17 +22,10 @@
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0f19;
-            color: #f8fafc;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #0b0f19; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
@@ -59,10 +50,8 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
 
-    <!-- Toast Notification Container (Bottom Right) -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
-    <!-- Top Header Navigation -->
     <header class="sticky top-0 z-40 glass-panel border-b border-cardBorder px-4 lg:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
@@ -87,10 +76,7 @@
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-6 space-y-6">
-
-        <!-- Storage Overview Section -->
         <section class="glass-panel rounded-2xl p-6 relative overflow-hidden engine-active">
             <div class="absolute top-4 right-4 hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-emerald-400 text-xs font-semibold">
                 <i class="fa-solid fa-bolt text-xs"></i>
@@ -99,7 +85,6 @@
             <div class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-4">Storage Overview</div>
 
             <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <!-- Circular Ring Gauge -->
                 <div class="relative w-40 h-40 flex items-center justify-center flex-shrink-0">
                     <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="42" stroke="#1e293b" stroke-width="8" fill="none"></circle>
@@ -118,48 +103,26 @@
                     </div>
                 </div>
 
-                <!-- Category Breakdown Grid -->
                 <div class="flex-1 grid grid-cols-2 gap-3 w-full max-w-md">
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
-                        <p class="text-[11px] text-slate-400 mb-1">Photos</p>
-                        <p id="sizePhotos" class="text-xs font-bold text-slate-200">0 B</p>
-                    </div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
-                        <p class="text-[11px] text-slate-400 mb-1">Videos</p>
-                        <p id="sizeVideos" class="text-xs font-bold text-slate-200">0 B</p>
-                    </div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
-                        <p class="text-[11px] text-slate-400 mb-1">Docs</p>
-                        <p id="sizeDocs" class="text-xs font-bold text-slate-200">0 B</p>
-                    </div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
-                        <p class="text-[11px] text-slate-400 mb-1">Other</p>
-                        <p id="sizeOther" class="text-xs font-bold text-slate-200">0 B</p>
-                    </div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400 mb-1">Photos</p><p id="sizePhotos" class="text-xs font-bold text-slate-200">0 B</p></div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400 mb-1">Videos</p><p id="sizeVideos" class="text-xs font-bold text-slate-200">0 B</p></div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400 mb-1">Docs</p><p id="sizeDocs" class="text-xs font-bold text-slate-200">0 B</p></div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400 mb-1">Other</p><p id="sizeOther" class="text-xs font-bold text-slate-200">0 B</p></div>
                 </div>
             </div>
         </section>
 
-        <!-- Root Vault Header -->
         <section class="space-y-4">
-            <div class="flex items-center justify-between">
-                <span class="text-slate-200 font-bold text-base flex items-center gap-2">
-                    <i class="fa-solid fa-folder-open text-amber-400"></i> Root Vault
-                </span>
-            </div>
-
-            <!-- Files Display Section -->
+            <div class="flex items-center justify-between"><span class="text-slate-200 font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder-open text-amber-400"></i> Root Vault</span></div>
             <div id="filesContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         </section>
     </main>
 
-    <!-- Upload Modal with Real-Time Speed & Progress -->
+    <!-- Upload Modal -->
     <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-cardBorder">
             <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> Upload to Telegram Vault
-                </h3>
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> Upload Large File (3GB+ Support)</h3>
                 <button id="closeUploadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             
@@ -167,7 +130,7 @@
             
             <div id="progressContainer" class="hidden space-y-2 pt-2">
                 <div class="flex justify-between text-[11px] text-slate-400">
-                    <span id="progressStatusText" class="truncate max-w-[200px]">Preparing upload...</span>
+                    <span id="progressStatusText" class="truncate max-w-[200px]">Splitting & uploading...</span>
                     <div class="space-x-2">
                         <span id="uploadSpeedText" class="text-cyan-400 font-semibold">0.00 MB/s</span>
                         <span id="progressPercentText" class="font-bold text-slate-200">0%</span>
@@ -179,7 +142,7 @@
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Fast Upload</button>
+                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Unlimited Upload</button>
             </div>
         </div>
     </div>
@@ -191,9 +154,9 @@
                 <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-link text-cyan-400"></i> Download File Chunks</h3>
                 <button id="closeDownloadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-[11px] text-slate-400">Files are automatically reassembled from Telegram chunks seamlessly.</p>
+            <p class="text-[11px] text-slate-400">Large files are automatically stitched back together when downloading.</p>
             <div id="chunksListContainer" class="space-y-2 max-h-48 overflow-y-auto"></div>
-            <button id="reassembleBtn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-darkBg font-bold rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
+            <button id="reassembleBtn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-darkBg font-bold rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
                 <i class="fa-solid fa-download"></i> Reassemble & Download File
             </button>
         </div>
@@ -218,9 +181,8 @@
         </div>
     </div>
 
-    <!-- App JavaScript Logic with Toast Notifications -->
     <script>
-        const backendUrl = "https://vault-production-8b9e.up.railway.app";
+        const backendUrl = "https://vault-production-8b9e.up.railway.app"; // REPLACE WITH YOUR RAILWAY URL
         let vaultFiles = JSON.parse(localStorage.getItem('quikr_files')) || [];
         let activeFileForChunks = null;
 
@@ -278,7 +240,7 @@
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="px-2 py-0.5 rounded-lg border text-[9px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border-cyan-500/20">${file.fileName.split('.').pop()}</span>
-                            <span class="text-[9px] text-slate-500">${file.parts} Parts</span>
+                            <span class="text-[9px] text-slate-500">${file.parts} Chunks</span>
                         </div>
                         <p class="text-xs font-semibold truncate text-slate-200" title="${file.fileName}">${file.fileName}</p>
                         <p class="text-[10px] text-slate-400">${formatBytes(file.size)}</p>
@@ -319,7 +281,7 @@
         });
         document.getElementById('closeUploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
 
-        // High-Speed Client-Side Chunking Upload with Real-Time Speed Tracking & Toast
+        // High-Speed Unlimited Chunking Upload (Safely handles 3GB+ files in 20MB pieces)
         document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if(fileInput.files.length === 0) return showToast('Please select a file first.', 'info');
@@ -341,7 +303,7 @@
             
             progressContainer.classList.remove('hidden');
 
-            const CHUNK_SIZE = 5 * 1024 * 1024;
+            const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks (optimized for large 3GB+ files)
             const totalParts = Math.ceil(file.size / CHUNK_SIZE);
             let telegramMessages = [];
 
@@ -350,7 +312,7 @@
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
 
-                progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts}...`;
+                progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts} (${Math.round((start/file.size)*100)}%)...`;
 
                 const formData = new FormData();
                 formData.append('file', chunk, `${file.name}.part${i + 1}_of_${totalParts}`);
@@ -375,7 +337,7 @@
                         throw new Error(data.error);
                     }
                 } catch(err) {
-                    showToast('Upload failed: ' + err.message, 'info');
+                    showToast('Upload failed on part ' + (i+1) + ': ' + err.message, 'info');
                     progressContainer.classList.add('hidden');
                     return;
                 }
@@ -395,7 +357,7 @@
             setTimeout(() => {
                 document.getElementById('uploadModal').classList.add('hidden');
                 loadVaultData();
-                showToast('File uploaded successfully to Telegram Vault!', 'success');
+                showToast('Large file successfully chunked & uploaded!', 'success');
             }, 300);
         });
 
@@ -413,7 +375,7 @@
 
         document.getElementById('reassembleBtn').addEventListener('click', async () => {
             if(!activeFileForChunks) return;
-            showToast('Reassembling file from Telegram...', 'info');
+            showToast('Stitching file chunks together...', 'info');
             try {
                 const res = await fetch(`${backendUrl}/api/download`, {
                     method: 'POST',
