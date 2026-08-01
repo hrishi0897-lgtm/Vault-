@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quikr Vault - Telegram Unlimited Cloud Storage</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -23,46 +24,75 @@
             }
         }
     </script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; overflow-x: hidden; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #0b0f19; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-        .glass-panel { background: rgba(19, 28, 46, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel {
+            background: rgba(19, 28, 46, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.15); }
-            50% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.35); }
+            0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+            50% { box-shadow: 0 0 35px rgba(6, 182, 212, 0.4); }
         }
         .engine-active { animation: pulseGlow 3s infinite; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased">
+<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 glass-panel border-b border-cardBorder px-4 lg:px-8 py-3 flex items-center justify-between">
+    <!-- Top Header Navigation -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-cardBorder px-4 lg:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <i class="fa-solid fa-vault text-darkBg text-lg font-bold"></i>
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <i class="fa-solid fa-vault text-darkBg text-base font-bold"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg tracking-tight flex items-center gap-1.5">Quikr <span class="text-cyan-400">Vault</span></h1>
-                <p class="text-[11px] text-slate-400">Telegram Unlimited Cloud Storage</p>
+                <h1 class="font-bold text-base tracking-tight flex items-center gap-1.5 text-slate-100">
+                    Quikr <span class="text-cyan-400">Vault</span>
+                </h1>
+                <p class="text-[10px] text-slate-400 font-medium">Telegram Unlimited Cloud Storage</p>
             </div>
         </div>
+
         <div class="flex items-center space-x-2.5">
-            <button id="uploadModalBtn" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg">Upload</button>
-            <button id="settingsModalBtn" class="w-10 h-10 rounded-xl bg-cardBorder flex items-center justify-center text-slate-300"><i class="fa-solid fa-gear"></i></button>
+            <button id="uploadModalBtn" class="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95">
+                <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                <span>Upload</span>
+            </button>
+            <button id="settingsModalBtn" class="w-9 h-9 rounded-xl bg-cardBorder/60 hover:bg-cardBorder flex items-center justify-center text-slate-300 transition-colors">
+                <i class="fa-solid fa-gear text-xs"></i>
+            </button>
         </div>
     </header>
 
+    <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-6 space-y-6">
-        <!-- Overview -->
+
+        <!-- Storage Overview Section -->
         <section class="glass-panel rounded-2xl p-6 relative overflow-hidden engine-active">
-            <div class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-4">Storage Overview</div>
+            <div class="absolute top-4 right-4 hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-emerald-400 text-xs font-semibold">
+                <i class="fa-solid fa-bolt text-xs"></i>
+                <span>Vault Engine Active</span>
+            </div>
+            <div class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-4">Storage Overview</div>
+
             <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="relative w-44 h-44 flex items-center justify-center flex-shrink-0">
+                <!-- Circular Ring Gauge -->
+                <div class="relative w-40 h-40 flex items-center justify-center flex-shrink-0">
                     <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="42" stroke="#1e293b" stroke-width="8" fill="none"></circle>
                         <circle id="storageProgressCircle" cx="50" cy="50" r="42" stroke="url(#cyanGradient)" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="200" stroke-linecap="round" fill="none" class="transition-all duration-700"></circle>
@@ -75,77 +105,115 @@
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                         <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Used Space</span>
-                        <span id="totalUsedSpaceText" class="text-2xl font-bold text-slate-100 mt-0.5">0 B</span>
-                        <span class="text-xs text-cyan-400 font-medium mt-0.5">of ∞ Capacity</span>
+                        <span id="totalUsedSpaceText" class="text-xl font-bold text-slate-100 mt-0.5">0 B</span>
+                        <span class="text-[11px] text-cyan-400 font-medium mt-0.5">of ∞ Capacity</span>
                     </div>
                 </div>
-                <div class="flex-1 grid grid-cols-2 gap-3.5 w-full max-w-md">
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Photos</p><p id="sizePhotos" class="text-xs font-bold text-slate-200">0 B</p></div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Videos</p><p id="sizeVideos" class="text-xs font-bold text-slate-200">0 B</p></div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Docs</p><p id="sizeDocs" class="text-xs font-bold text-slate-200">0 B</p></div>
-                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50"><p class="text-[11px] text-slate-400">Other</p><p id="sizeOther" class="text-xs font-bold text-slate-200">0 B</p></div>
+
+                <!-- Category Breakdown Grid (Matching Screenshot 2) -->
+                <div class="flex-1 grid grid-cols-2 gap-3 w-full max-w-md">
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
+                        <p class="text-[11px] text-slate-400 mb-1">Photos</p>
+                        <p id="sizePhotos" class="text-xs font-bold text-slate-200">0 B</p>
+                    </div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
+                        <p class="text-[11px] text-slate-400 mb-1">Videos</p>
+                        <p id="sizeVideos" class="text-xs font-bold text-slate-200">0 B</p>
+                    </div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
+                        <p class="text-[11px] text-slate-400 mb-1">Docs</p>
+                        <p id="sizeDocs" class="text-xs font-bold text-slate-200">0 B</p>
+                    </div>
+                    <div class="bg-cardBorder/30 p-3.5 rounded-xl border border-cardBorder/50">
+                        <p class="text-[11px] text-slate-400 mb-1">Other</p>
+                        <p id="sizeOther" class="text-xs font-bold text-slate-200">0 B</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Files Section -->
+        <!-- Root Vault Header -->
         <section class="space-y-4">
-            <div class="flex justify-between items-center"><span id="currentBreadcrumb" class="text-slate-200 font-semibold text-base">Root Vault</span></div>
+            <div class="flex items-center justify-between">
+                <span class="text-slate-200 font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-amber-400"></i> Root Vault
+                </span>
+            </div>
+
+            <!-- Files Display Section -->
             <div id="filesContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         </section>
     </main>
 
-    <!-- Upload Modal -->
+    <!-- Upload Modal with Real-Time Speed & Progress -->
     <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4">
-            <h3 class="text-base font-bold text-slate-100">Upload to Telegram Vault</h3>
-            <input type="file" id="fileInput" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500 file:text-darkBg file:font-semibold">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-cardBorder">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> Upload to Telegram Vault
+                </h3>
+                <button id="closeUploadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            
+            <input type="file" id="fileInput" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500 file:text-darkBg file:font-semibold cursor-pointer">
             
             <div id="progressContainer" class="hidden space-y-2 pt-2">
-                <div class="flex justify-between text-xs text-slate-400">
-                    <span id="progressStatusText">Preparing upload...</span>
-                    <span id="progressPercentText">0%</span>
+                <div class="flex justify-between text-[11px] text-slate-400">
+                    <span id="progressStatusText" class="truncate max-w-[200px]">Preparing upload...</span>
+                    <div class="space-x-2">
+                        <span id="uploadSpeedText" class="text-cyan-400 font-semibold">0.00 MB/s</span>
+                        <span id="progressPercentText" class="font-bold text-slate-200">0%</span>
+                    </div>
                 </div>
-                <div class="w-full bg-cardBorder rounded-full h-2 overflow-hidden">
-                    <div id="progressBar" class="bg-cyan-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                <div class="w-full bg-cardBorder rounded-full h-2.5 overflow-hidden">
+                    <div id="progressBar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-2.5 rounded-full transition-all duration-200" style="width: 0%"></div>
                 </div>
             </div>
 
             <div class="flex justify-end space-x-2 pt-2">
-                <button id="closeUploadBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-xs">Cancel</button>
-                <button id="startUploadBtn" class="px-4 py-2 bg-cyan-500 text-darkBg rounded-xl text-xs font-semibold">Start Upload</button>
+                <button id="startUploadBtn" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-darkBg rounded-xl text-xs font-bold transition-all shadow-lg shadow-cyan-500/20">Start Fast Upload</button>
             </div>
         </div>
     </div>
 
     <!-- Download Chunks Modal -->
     <div id="downloadModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4">
-            <div class="flex justify-between items-center"><h3 class="text-base font-bold">Download File Chunks</h3><button id="closeDownloadBtn" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-cardBorder">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-link text-cyan-400"></i> Download File Chunks</h3>
+                <button id="closeDownloadBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-[11px] text-slate-400">Files are automatically reassembled from Telegram chunks seamlessly.</p>
             <div id="chunksListContainer" class="space-y-2 max-h-48 overflow-y-auto"></div>
-            <button id="reassembleBtn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-darkBg font-bold rounded-xl text-xs">Reassemble & Download Single File</button>
+            <button id="reassembleBtn" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-darkBg font-bold rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-download"></i> Reassemble & Download File
+            </button>
         </div>
     </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-darkBg/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4">
-            <h3 class="text-base font-bold">Telegram Bot Settings</h3>
-            <input type="password" id="botTokenInput" placeholder="Bot Token" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3 py-2 text-xs text-slate-200">
-            <input type="text" id="chatIdInput" placeholder="Chat ID" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3 py-2 text-xs text-slate-200">
-            <div class="flex justify-end space-x-2">
-                <button id="closeSettingsBtn" class="px-4 py-2 bg-cardBorder rounded-xl text-xs">Cancel</button>
-                <button id="saveSettingsBtn" class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-semibold">Save</button>
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-cardBorder">
+            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-400"></i> Telegram Bot Settings</h3>
+            <div>
+                <label class="block text-[11px] font-medium text-slate-300 mb-1">Telegram Bot Token</label>
+                <input type="password" id="botTokenInput" placeholder="123456789:ABCdefGhIJKlmNo..." class="w-full bg-cardBg border border-cardBorder rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+                <label class="block text-[11px] font-medium text-slate-300 mb-1">Telegram Chat ID / Channel ID</label>
+                <input type="text" id="chatIdInput" placeholder="-100xxxxxxxxxx" class="w-full bg-cardBg border border-cardBorder rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button id="closeSettingsBtn" class="px-4 py-2 bg-cardBorder/60 rounded-xl text-xs text-slate-300">Cancel</button>
+                <button id="saveSettingsBtn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl text-xs font-semibold transition-all">Save Credentials</button>
             </div>
         </div>
     </div>
 
+    <!-- App JavaScript Logic with Real-Time Speed & Chunking -->
     <script>
         const backendUrl = "https://vault-pmt4.onrender.com";
-        let vaultState = {
-            currentFolderId: 'root',
-            files: JSON.parse(localStorage.getItem('quikr_files')) || []
-        };
+        let vaultFiles = JSON.parse(localStorage.getItem('quikr_files')) || [];
         let activeFileForChunks = null;
 
         function formatBytes(bytes) {
@@ -157,7 +225,8 @@
 
         function loadVaultData() {
             let totalBytes = 0, photos = 0, videos = 0, docs = 0, others = 0;
-            vaultState.files.forEach(f => {
+            vaultStateFiles = vaultFiles;
+            vaultStateFiles.forEach(f => {
                 totalBytes += f.size;
                 if (f.type === 'photos') photos += f.size;
                 else if (f.type === 'videos') videos += f.size;
@@ -176,18 +245,34 @@
             document.getElementById('storageProgressCircle').style.strokeDashoffset = circumference - (progress * circumference);
 
             const container = document.getElementById('filesContainer');
-            if(vaultState.files.length === 0) {
+            if(vaultFiles.length === 0) {
                 container.innerHTML = '<p class="col-span-full text-center text-xs text-slate-500 py-12">No files in vault yet.</p>';
                 return;
             }
 
-            container.innerHTML = vaultState.files.map((file, idx) => `
-                <div class="glass-panel p-4 rounded-2xl border border-cardBorder space-y-3">
-                    <p class="text-xs font-semibold truncate">${file.fileName}</p>
-                    <p class="text-[10px] text-slate-400">${formatBytes(file.size)} • ${file.parts} Parts</p>
-                    <button onclick="openDownloadModal(${idx})" class="w-full py-2 bg-cyan-500/20 text-cyan-400 rounded-xl text-xs font-semibold">Download Links</button>
+            container.innerHTML = vaultFiles.map((file, idx) => `
+                <div class="glass-panel p-4 rounded-2xl border border-cardBorder space-y-3 flex flex-col justify-between group hover:border-cyan-500/40 transition-all">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="px-2 py-0.5 rounded-lg border text-[9px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border-cyan-500/20">${file.fileName.split('.').pop()}</span>
+                            <span class="text-[9px] text-slate-500">${file.parts} Parts</span>
+                        </div>
+                        <p class="text-xs font-semibold truncate text-slate-200" title="${file.fileName}">${file.fileName}</p>
+                        <p class="text-[10px] text-slate-400">${formatBytes(file.size)}</p>
+                    </div>
+                    <div class="flex items-center gap-2 pt-2 border-t border-cardBorder/50">
+                        <button onclick="openDownloadModal(${idx})" class="flex-1 py-2 bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-darkBg rounded-xl text-xs font-semibold transition-all text-center">Download Links</button>
+                        <button onclick="deleteFile(${idx})" class="w-8 h-8 rounded-xl bg-cardBorder/50 hover:bg-red-500/20 hover:text-red-400 text-slate-400 flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function deleteFile(index) {
+            if(!confirm('Remove file from vault?')) return;
+            vaultFiles.splice(index, 1);
+            localStorage.setItem('quikr_files', JSON.stringify(vaultFiles));
+            loadVaultData();
         }
 
         document.getElementById('settingsModalBtn').addEventListener('click', () => {
@@ -200,7 +285,7 @@
             localStorage.setItem('botToken', document.getElementById('botTokenInput').value.trim());
             localStorage.setItem('chatId', document.getElementById('chatIdInput').value.trim());
             document.getElementById('settingsModal').classList.add('hidden');
-            alert('Settings saved!');
+            alert('Settings saved successfully!');
         });
 
         document.getElementById('uploadModalBtn').addEventListener('click', () => {
@@ -210,7 +295,7 @@
         });
         document.getElementById('closeUploadBtn').addEventListener('click', () => document.getElementById('uploadModal').classList.add('hidden'));
 
-        // Client-side 5MB fast chunking upload handler
+        // High-Speed Client-Side Chunking Upload with Real-Time Speed Tracking
         document.getElementById('startUploadBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             if(fileInput.files.length === 0) return alert('Select file first.');
@@ -228,21 +313,20 @@
             const progressBar = document.getElementById('progressBar');
             const progressPercentText = document.getElementById('progressPercentText');
             const progressStatusText = document.getElementById('progressStatusText');
+            const uploadSpeedText = document.getElementById('uploadSpeedText');
             
             progressContainer.classList.remove('hidden');
 
-            const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB fast chunking
+            const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks for high speed
             const totalParts = Math.ceil(file.size / CHUNK_SIZE);
             let telegramMessages = [];
+            let startTime = Date.now();
 
             for (let i = 0; i < totalParts; i++) {
                 const start = i * CHUNK_SIZE;
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
 
-                const percent = Math.round((i / totalParts) * 100);
-                progressBar.style.width = percent + '%';
-                progressPercentText.textContent = percent + '%';
                 progressStatusText.textContent = `Uploading part ${i + 1} of ${totalParts}...`;
 
                 const formData = new FormData();
@@ -250,11 +334,21 @@
                 formData.append('botToken', token);
                 formData.append('chatId', chatId);
 
+                let chunkStart = Date.now();
                 try {
                     const res = await fetch(`${backendUrl}/api/upload`, { method: 'POST', body: formData });
                     const data = await res.json();
                     if(data.success) {
                         telegramMessages.push({ fileId: data.fileId });
+                        
+                        // Calculate real-time speed & percentage
+                        let elapsed = (Date.now() - chunkStart) / 1000;
+                        let speed = elapsed > 0 ? (chunk.size / (1024 * 1024)) / elapsed : 0;
+                        uploadSpeedText.textContent = speed.toFixed(2) + ' MB/s';
+
+                        let percent = Math.round(((i + 1) / totalParts) * 100);
+                        progressBar.style.width = percent + '%';
+                        progressPercentText.textContent = percent + '%';
                     } else {
                         throw new Error(data.error);
                     }
@@ -265,11 +359,8 @@
                 }
             }
 
-            progressBar.style.width = '100%';
-            progressPercentText.textContent = '100%';
-            progressStatusText.textContent = 'Complete!';
-
-            vaultState.files.unshift({
+            progressStatusText.textContent = 'Upload complete!';
+            vaultFiles.unshift({
                 fileName: file.name,
                 size: file.size,
                 parts: totalParts,
@@ -277,7 +368,7 @@
                 type: cat,
                 date: new Date().toISOString()
             });
-            localStorage.setItem('quikr_files', JSON.stringify(vaultState.files));
+            localStorage.setItem('quikr_files', JSON.stringify(vaultFiles));
 
             setTimeout(() => {
                 document.getElementById('uploadModal').classList.add('hidden');
@@ -287,18 +378,20 @@
         });
 
         function openDownloadModal(index) {
-            activeFileForChunks = vaultState.files[index];
+            activeFileForChunks = vaultFiles[index];
             document.getElementById('chunksListContainer').innerHTML = activeFileForChunks.telegramMessages.map((m, i) => `
-                <div class="p-2 bg-cardBg rounded-lg text-xs text-slate-300">Part ${i + 1} of ${activeFileForChunks.parts} ready</div>
+                <div class="p-2 bg-cardBg rounded-lg text-xs text-slate-300 flex justify-between items-center">
+                    <span>Part ${i + 1} of ${activeFileForChunks.parts}</span>
+                    <span class="text-cyan-400 text-[10px]">Ready</span>
+                </div>
             `).join('');
-            document.getElementById('downloadModal').classList.add('flex');
             document.getElementById('downloadModal').classList.remove('hidden');
         }
         document.getElementById('closeDownloadBtn').addEventListener('click', () => document.getElementById('downloadModal').classList.add('hidden'));
 
         document.getElementById('reassembleBtn').addEventListener('click', async () => {
             if(!activeFileForChunks) return;
-            alert('Reassembling file from Telegram...');
+            alert('Reassembling file chunks from Telegram...');
             try {
                 const res = await fetch(`${backendUrl}/api/download`, {
                     method: 'POST',
@@ -321,3 +414,4 @@
     </script>
 </body>
 </html>
+
